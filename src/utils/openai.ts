@@ -105,7 +105,8 @@ const createChatCompletion = async (
 	return JSON.parse(data) as CreateChatCompletionResponse;
 };
 
-const sanitizeMessage = (message: string) =>
+const sanitizeMessage = (message: string, ticketNumber?: string) =>
+	(ticketNumber ? `${ticketNumber}: ` : '') +
 	message
 		.trim()
 		.replace(/[\n\r]/g, '')
@@ -139,7 +140,8 @@ export const generateCommitMessage = async (
 	maxLength: number,
 	type: CommitType,
 	timeout: number,
-	proxy?: string
+	proxy?: string,
+	ticketNumber?: string,
 ) => {
 	try {
 		const completion = await createChatCompletion(
@@ -171,7 +173,7 @@ export const generateCommitMessage = async (
 		return deduplicateMessages(
 			completion.choices
 				.filter((choice) => choice.message?.content)
-				.map((choice) => sanitizeMessage(choice.message!.content as string))
+				.map((choice) => sanitizeMessage(choice.message!.content as string, ticketNumber))
 		);
 	} catch (error) {
 		const errorAsAny = error as any;

@@ -27,7 +27,9 @@ export default async (
 	(async () => {
 		intro(bgCyan(black(' aicommits ')));
 		await assertGitRepo();
-
+		const { stdout: branchName } = await execa('git', ['rev-parse', '--abbrev-ref', 'HEAD']);
+		const ticketMatch = branchName.match(/[a-zA-Z]+-\d+/);
+		const ticketNumber = ticketMatch ? ticketMatch[0] : undefined;
 		const detectingFiles = spinner();
 
 		if (stageAll) {
@@ -73,7 +75,8 @@ export default async (
 				config['max-length'],
 				config.type,
 				config.timeout,
-				config.proxy
+				config.proxy,
+				ticketNumber,
 			);
 		} finally {
 			s.stop('Changes analyzed');
